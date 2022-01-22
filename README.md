@@ -13,5 +13,5 @@ poetry install
 ### run interactive solver
 
 ```
-poetry run interactive.py
+poetry run python interactive.py
 ```
