@@ -1,7 +1,5 @@
-import imp
 import itertools
 from collections import Counter
-from pkgutil import ImpImporter
 
 import nltk
 
@@ -39,3 +37,11 @@ with open("5_characters_dictionary_large.txt", "w") as f:
         if len(k) == 5 and k in perm
     ]
     f.write("\n".join(words))
+    words = set(words)
+
+    # combine dictionary extracted from "/usr/share/dict/words" in Mac
+    with open("5_characters_dictionary_mac.txt") as f2:
+        f.write(
+            "\n"
+            + "\n".join([w for w in f2.read().rstrip().rsplit("\n") if w not in words])
+        )
