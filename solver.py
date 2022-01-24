@@ -7,8 +7,8 @@ from tqdm import tqdm
 class WordleSolver:
     def __init__(
         self,
-        dictionary_path="5_characters_dictionary_large.txt",
-        word_list=["dance", "hilum", "ports"],
+        dictionary_path="5_characters_dictionary_wordle.txt",
+        word_list=["tares"],
     ) -> None:
         with open(dictionary_path) as f:
             self.dictionary = f.read().rstrip().split("\n")
@@ -33,15 +33,20 @@ class WordleSolver:
         fixed = []
         contained = []
         not_contained = []
-
+        contained_set = set()
         for inp, res in zip(past_inputs, past_results):
             for idx, (i, r) in enumerate(zip(inp, res)):
                 if r == "G":
                     fixed.append((i, idx))
+                    contained_set.add(i)
                 elif r == "Y":
                     contained.append((i, idx))
+                    contained_set.add(i)
                 else:
-                    not_contained.append(i)
+                    if i in contained_set:
+                        contained.append((i, idx))
+                    else:
+                        not_contained.append(i)
         candidates = []
 
         for v in dictionary:
@@ -109,7 +114,7 @@ class WordleSolver:
                 r = self.calc_result(a, c)
                 cand += len(
                     self.search_candidates(
-                        self.dictionary, past_inputs + [c], past_results + [r]
+                        candidates, past_inputs + [c], past_results + [r]
                     )
                 )
             cand /= len(candidates)
