@@ -8,10 +8,15 @@ class WordleSolver:
     def __init__(
         self,
         dictionary_path="5_characters_dictionary_wordle.txt",
-        word_list=["tares"],
+        entropy_dictionary_path="5_characters_dictionary_entropy.txt",
+        cand_num=500,
+        word_list=["salet"],
     ) -> None:
         with open(dictionary_path) as f:
             self.dictionary = f.read().rstrip().split("\n")
+        with open(entropy_dictionary_path) as f:
+            self.entropy_dictionary = f.read().rstrip().split("\n")[:cand_num]
+        self.cand_num = cand_num
         self._word_list = word_list
 
     @staticmethod
@@ -108,7 +113,7 @@ class WordleSolver:
 
         min_cand = 1e9
         ret_cand = candidates[0]
-        for c in candidates:
+        for c in (candidates + self.entropy_dictionary)[: self.cand_num]:
             cand = 0
             for a in candidates:
                 r = self.calc_result(a, c)
@@ -141,15 +146,15 @@ class WordleSolverSimulator:
             if r == "GGGGG":
                 turn = str(i + 1)
                 break
-        # print(f"Wordle {answer} {turn}/6")
-        # for r in past_results:
-        #     print("".join([{"G": "🟩", "Y": "🟨", "B": "⬛"}[v] for v in r]))
+        print(f"Wordle {answer} {turn}/6")
+        for r in past_results:
+            print("".join([{"G": "🟩", "Y": "🟨", "B": "⬛"}[v] for v in r]))
 
         return turn
 
 
 if __name__ == "__main__":
-    with open("5_characters_dictionary_large.txt") as f:
+    with open("5_characters_dictionary.txt") as f:
         answers = f.read().rstrip().split("\n")
 
     e = ProcessPoolExecutor(16)
@@ -160,8 +165,8 @@ if __name__ == "__main__":
     turn_sum = 0
     for a in answers:
         futures.append(e.submit(simulator.simulate, a))
-    for f, a in tqdm(list(zip(futures, answers))):
-        turn = f.result()
+    for feat, a in tqdm(list(zip(futures, answers))):
+        turn = feat.result()
         if turn == "x":
             print(a)
             x.append(a)
